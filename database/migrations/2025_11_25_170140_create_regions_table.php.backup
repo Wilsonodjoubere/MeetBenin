@@ -1,0 +1,31 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
+class Region extends Model
+{
+    use HasFactory, SoftDeletes;
+
+    protected $table = 'region'; // Table au singulier
+    protected $primaryKey = 'id_region'; // Clé primaire personnalisée
+    
+    protected $fillable = [
+        'nom_region',
+        'code',
+        'description', 
+        'population',
+        'superficie',
+        'localisation',
+        'statut'
+    ];
+
+    protected $casts = [
+        'statut' => 'boolean',
+        'population' => 'integer',
+        'superficie' => 'decimal:2'
+    ];
+}
