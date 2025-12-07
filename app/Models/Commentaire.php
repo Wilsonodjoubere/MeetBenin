@@ -26,6 +26,12 @@ class Commentaire extends Model
         'note' => 'integer'
     ];
 
+    // AJOUTEZ CETTE MÉTHODE POUR LE ROUTE MODEL BINDING
+    public function getRouteKeyName()
+    {
+        return 'id_commentaire';
+    }
+
     public function utilisateur()
     {
         return $this->belongsTo(User::class, 'id_utilisateur');

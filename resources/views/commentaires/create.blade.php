@@ -41,8 +41,9 @@
                                     id="id_utilisateur" name="id_utilisateur" required>
                                 <option value="">Sélectionner un utilisateur</option>
                                 @foreach($utilisateurs as $utilisateur)
-                                    <option value="{{ $utilisateur->id }}" {{ old('id_utilisateur') == $utilisateur->id ? 'selected' : '' }}>
-                                        {{ $utilisateur->name }} ({{ $utilisateur->email }})
+                                    <!-- CORRECTION ICI : utiliser id_utilisateur au lieu de id -->
+                                    <option value="{{ $utilisateur->id_utilisateur }}" {{ old('id_utilisateur') == $utilisateur->id_utilisateur ? 'selected' : '' }}>
+                                        {{ $utilisateur->prenom }} {{ $utilisateur->nom }} ({{ $utilisateur->email }})
                                     </option>
                                 @endforeach
                             </select>

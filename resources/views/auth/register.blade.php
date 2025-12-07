@@ -161,7 +161,7 @@
             position: relative;
         }
 
-        input {
+        input, select {
             width: 100%;
             padding: 14px 16px 14px 45px;
             border: 1px solid var(--border);
@@ -170,8 +170,12 @@
             transition: all 0.2s;
             background-color: #fcf9f5;
         }
+        
+        select {
+            padding: 14px 16px 14px 45px;
+        }
 
-        input:focus {
+        input:focus, select:focus {
             outline: none;
             border-color: var(--primary);
             box-shadow: 0 0 0 3px rgba(225, 112, 0, 0.1);
@@ -394,6 +398,13 @@
             margin-right: 8px;
         }
 
+        .file-input-info {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-top: 5px;
+            display: block;
+        }
+
         @media (max-width: 768px) {
             .register-container {
                 flex-direction: column;
@@ -427,7 +438,6 @@
     <div class="register-container">
         <div class="register-left">
             <div class="image-content">
-                <!-- REMPLACEZ CE CHEMIN PAR VOTRE IMAGE -->
                 <img src="{{ asset('images/Bénin.jpg') }}" alt="Culture Bénin" class="cultural-image">
             </div>
             <div class="cultural-pattern"></div>
@@ -445,34 +455,107 @@
             </h2>
             <p class="form-subtitle">Remplissez les informations ci-dessous pour créer votre compte CultureBénin</p>
             
-            <!-- Session Status -->
             <x-auth-session-status class="status-message status-success" :status="session('status')" />
             
-            <!-- FORMULAIRE LARAVEL - Après inscription, Laravel redirigera vers login -->
-            <form method="POST" action="{{ route('register') }}">
+            <form method="POST" action="{{ route('register') }}" enctype="multipart/form-data">
                 @csrf
                 
-                <!-- Name -->
                 <div class="form-group">
-                    <label for="name">Nom complet</label>
+                    <label for="nom">Nom</label>
                     <div class="input-container">
-                        <input id="name" type="text" name="name" :value="old('name')" required autofocus autocomplete="name" placeholder="Votre nom complet">
+                        <input id="nom" type="text" name="nom" value="{{ old('nom') }}" required autofocus autocomplete="family-name" placeholder="Votre nom">
                         <span class="input-icon"><i class="fas fa-user"></i></span>
                     </div>
-                    <x-input-error :messages="$errors->get('name')" class="error-message" />
+                    <x-input-error :messages="$errors->get('nom')" class="error-message" />
+                </div>
+
+                <div class="form-group">
+                    <label for="prenom">Prénom</label>
+                    <div class="input-container">
+                        <input id="prenom" type="text" name="prenom" value="{{ old('prenom') }}" required autocomplete="given-name" placeholder="Votre prénom">
+                        <span class="input-icon"><i class="fas fa-user"></i></span>
+                    </div>
+                    <x-input-error :messages="$errors->get('prenom')" class="error-message" />
+                </div>
+
+                <div class="form-group">
+                    <label for="sexe">Sexe</label>
+                    <div class="input-container">
+                        <select id="sexe" name="sexe" required>
+                            <option value="">Sélectionner</option>
+                            <option value="M" {{ old('sexe') == 'M' ? 'selected' : '' }}>Masculin</option>
+                            <option value="F" {{ old('sexe') == 'F' ? 'selected' : '' }}>Féminin</option>
+                        </select>
+                        <span class="input-icon"><i class="fas fa-venus-mars"></i></span>
+                    </div>
+                    <x-input-error :messages="$errors->get('sexe')" class="error-message" />
+                </div>
+
+                <!-- CHAMP: Photo de profil -->
+                <div class="form-group">
+                    <label for="photo">Photo de profil (optionnel)</label>
+                    <div class="input-container">
+                        <input id="photo" type="file" name="photo" accept="image/*">
+                        <span class="input-icon"><i class="fas fa-camera"></i></span>
+                    </div>
+                    <span class="file-input-info">Formats acceptés: JPEG, PNG, JPG, GIF (max 2MB)</span>
+                    <x-input-error :messages="$errors->get('photo')" class="error-message" />
+                </div>
+
+                <!-- CHAMP: Date de naissance -->
+                <div class="form-group">
+                    <label for="date_naissance">Date de naissance</label>
+                    <div class="input-container">
+                        <input id="date_naissance" type="date" name="date_naissance" value="{{ old('date_naissance') }}">
+                        <span class="input-icon"><i class="fas fa-calendar"></i></span>
+                    </div>
+                    <x-input-error :messages="$errors->get('date_naissance')" class="error-message" />
                 </div>
                 
-                <!-- Email Address -->
                 <div class="form-group">
                     <label for="email">Adresse email</label>
                     <div class="input-container">
-                        <input id="email" type="email" name="email" :value="old('email')" required autocomplete="username" placeholder="votre@email.com">
+                        <input id="email" type="email" name="email" value="{{ old('email') }}" required autocomplete="username" placeholder="votre@email.com">
                         <span class="input-icon"><i class="fas fa-envelope"></i></span>
                     </div>
                     <x-input-error :messages="$errors->get('email')" class="error-message" />
                 </div>
+
+                <!-- CHAMP: Langue -->
+                <div class="form-group">
+                    <label for="id_langue">Langue préférée</label>
+                    <div class="input-container">
+                        <select id="id_langue" name="id_langue">
+                            <option value="">Sélectionnez une langue</option>
+                            @foreach($langues as $langue)
+                                <option value="{{ $langue->id_langue }}" {{ old('id_langue') == $langue->id_langue ? 'selected' : '' }}>
+                                    {{ $langue->nom_langue }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <span class="input-icon"><i class="fas fa-language"></i></span>
+                    </div>
+                    <x-input-error :messages="$errors->get('id_langue')" class="error-message" />
+                </div>
                 
-                <!-- Password -->
+                <!-- CHAMP: Type de compte (MODIFIÉ - Seulement Créateur et Traducteur) -->
+                <div class="form-group">
+                    <label for="id_role">Type de compte</label>
+                    <div class="input-container">
+                        <select id="id_role" name="id_role" required>
+                            <option value="">Sélectionner un type de compte</option>
+                            <option value="2" {{ old('id_role') == 2 ? 'selected' : '' }}>Créateur de Contenu</option>
+                            <option value="6" {{ old('id_role') == 6 ? 'selected' : '' }}>Traducteur</option>
+                        </select>
+                        <span class="input-icon"><i class="fas fa-user-tag"></i></span>
+                    </div>
+                    <div class="form-text" style="font-size: 12px; color: var(--text-light); margin-top: 5px;">
+                        • Créateur de Contenu : Publier et gérer du contenu culturel<br>
+                        • Traducteur : Traduire le contenu dans différentes langues
+                    </div>
+                    <x-input-error :messages="$errors->get('id_role')" class="error-message" />
+                </div>
+
                 <div class="form-group">
                     <label for="password">Mot de passe</label>
                     <div class="input-container">
@@ -486,7 +569,6 @@
                     <x-input-error :messages="$errors->get('password')" class="error-message" />
                 </div>
                 
-                <!-- Confirm Password -->
                 <div class="form-group">
                     <label for="password_confirmation">Confirmer le mot de passe</label>
                     <div class="input-container">
@@ -496,7 +578,6 @@
                     <x-input-error :messages="$errors->get('password_confirmation')" class="error-message" />
                 </div>
                 
-                <!-- Terms and Conditions -->
                 <div class="terms">
                     <input id="terms" type="checkbox" name="terms" required>
                     <label for="terms">
@@ -504,7 +585,6 @@
                     </label>
                 </div>
                 
-                <!-- Submit Button -->
                 <button type="submit" class="submit-btn">
                     Créer mon compte
                     <span class="submit-icon"><i class="fas fa-arrow-right"></i></span>
@@ -527,7 +607,6 @@
             </div>
             
             <div class="auth-links">
-                <!-- LIEN VERS LA PAGE DE LOGIN SEULEMENT -->
                 <a href="{{ route('login') }}" class="auth-link">
                     <i class="fas fa-sign-in-alt"></i>
                     Déjà inscrit ? Se connecter
@@ -596,6 +675,26 @@
                 button.addEventListener('click', function() {
                     alert('Fonctionnalité de connexion sociale à implémenter');
                 });
+            });
+
+            // Aperçu de la photo sélectionnée
+            const photoInput = document.getElementById('photo');
+            photoInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    if (file.size > 2 * 1024 * 1024) {
+                        alert('Le fichier est trop volumineux. Maximum 2MB autorisé.');
+                        this.value = '';
+                        return;
+                    }
+                    
+                    const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif'];
+                    if (!validTypes.includes(file.type)) {
+                        alert('Format de fichier non supporté. Utilisez JPEG, PNG, JPG ou GIF.');
+                        this.value = '';
+                        return;
+                    }
+                }
             });
         });
     </script>

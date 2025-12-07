@@ -432,8 +432,7 @@
     <div class="login-container">
         <div class="login-left">
             <div class="image-content">
-                <img src="{{ asset('images/biguerra.jpg') }}" 
-     alt="Culture Bénin" class="cultural-image">
+                <img src="{{ asset('images/biguerra.jpg') }}" alt="Culture Bénin" class="cultural-image">
             </div>
             <div class="cultural-pattern"></div>
         </div>
@@ -453,24 +452,37 @@
             <!-- Session Status -->
             <x-auth-session-status class="status-message status-success" :status="session('status')" />
             
-            <form method="POST" action="{{ route('login') }}">
+            <!-- FORMULAIRE CORRIGÉ ET SIMPLIFIÉ -->
+            <form method="POST" action="{{ route('login') }}" id="loginForm">
                 @csrf
                 
-                <!-- Email Address -->
+                <!-- Email Address - NOMS CORRECTS -->
                 <div class="form-group">
                     <label for="email">Adresse email</label>
                     <div class="input-container">
-                        <input id="email" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" placeholder="votre@email.com">
+                        <input id="email" 
+                               type="email" 
+                               name="email" 
+                               value="{{ old('email') }}" 
+                               required 
+                               autofocus 
+                               autocomplete="username"
+                               placeholder="traducteur@test.com">
                         <span class="input-icon"><i class="fas fa-envelope"></i></span>
                     </div>
                     <x-input-error :messages="$errors->get('email')" class="error-message" />
                 </div>
                 
-                <!-- Password -->
+                <!-- Password - NOMS CORRECTS -->
                 <div class="form-group">
                     <label for="password">Mot de passe</label>
                     <div class="input-container">
-                        <input id="password" type="password" name="password" required autocomplete="current-password" placeholder="Votre mot de passe">
+                        <input id="password" 
+                               type="password" 
+                               name="password" 
+                               required 
+                               autocomplete="current-password"
+                               placeholder="password">
                         <span class="input-icon"><i class="fas fa-lock"></i></span>
                     </div>
                     <x-input-error :messages="$errors->get('password')" class="error-message" />
@@ -547,6 +559,27 @@
                     alert('Fonctionnalité de connexion sociale à implémenter');
                 });
             });
+
+            // CORRECTION SIMPLE DU CACHE
+            // Si le champ email est vide ou contient une ancienne valeur, on le vide
+            const emailField = document.getElementById('email');
+            const passwordField = document.getElementById('password');
+            
+            if (emailField) {
+                // Si le champ contient une ancienne valeur incorrecte
+                if (emailField.value === 'wodjoubere@gmail.com') {
+                    emailField.value = '';
+                }
+                // Si vide, on met le placeholder pour aider
+                if (!emailField.value) {
+                    emailField.placeholder = 'traducteur@test.com';
+                }
+            }
+            
+            if (passwordField && passwordField.value) {
+                // Vide le mot de passe s'il est pré-rempli
+                passwordField.value = '';
+            }
         });
     </script>
 </body>

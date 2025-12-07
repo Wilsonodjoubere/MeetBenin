@@ -2,13 +2,15 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Contenu extends Model
 {
-    protected $table = 'contenus';
+    use HasFactory;
+
     protected $primaryKey = 'id_contenu';
     
     protected $fillable = [
@@ -16,17 +18,17 @@ class Contenu extends Model
         'texte',
         'statut',
         'parent_id',
-        'date_validation',
         'id_region',
         'id_langue',
-        'id_moderateur',
         'id_type_contenu',
-        'id_auteur'
+        'id_auteur',
+        'id_moderateur',
+        'date_validation'
     ];
-
+    
     protected $casts = [
-        'date_creation' => 'datetime',
         'date_validation' => 'datetime',
+        'date_creation' => 'datetime'
     ];
 
     /**
@@ -42,7 +44,7 @@ class Contenu extends Model
      */
     public function langue(): BelongsTo
     {
-        return $this->belongsTo(Langue::class, 'id_langue', 'Id_langue');
+        return $this->belongsTo(Langue::class, 'id_langue', 'id_langue');
     }
 
     /**
@@ -58,7 +60,7 @@ class Contenu extends Model
      */
     public function auteur(): BelongsTo
     {
-        return $this->belongsTo(Utilisateur::class, 'id_auteur', 'id_utilisateur');
+        return $this->belongsTo(User::class, 'id_auteur', 'id_utilisateur'); // Utilisateur -> User
     }
 
     /**
@@ -66,11 +68,11 @@ class Contenu extends Model
      */
     public function moderateur(): BelongsTo
     {
-        return $this->belongsTo(Utilisateur::class, 'id_moderateur', 'id_utilisateur');
+        return $this->belongsTo(User::class, 'id_moderateur', 'id_utilisateur'); // Utilisateur -> User
     }
 
     /**
-     * Relation parent (contenu parent)
+     * Relation avec le contenu parent
      */
     public function parent(): BelongsTo
     {
@@ -78,7 +80,7 @@ class Contenu extends Model
     }
 
     /**
-     * Relation enfants (sous-contenus)
+     * Relation avec les contenus enfants
      */
     public function enfants(): HasMany
     {
@@ -102,11 +104,19 @@ class Contenu extends Model
     }
 
     /**
-     * Scope pour les contenus d'un auteur
+     * Scope pour les contenus rejetés
      */
-    public function scopeParAuteur($query, $auteurId)
+    public function scopeRejetes($query)
     {
-        return $query->where('id_auteur', $auteurId);
+        return $query->where('statut', 'rejete');
+    }
+
+    /**
+     * Scope pour les contenus brouillons
+     */
+    public function scopeBrouillons($query)
+    {
+        return $query->where('statut', 'brouillon');
     }
 
     /**
@@ -118,10 +128,26 @@ class Contenu extends Model
     }
 
     /**
-     * Vérifie si le contenu a des enfants
+     * Vérifie si le contenu est en attente
      */
-    public function aEnfants(): bool
+    public function estEnAttente(): bool
     {
-        return $this->enfants()->exists();
+        return $this->statut === 'en_attente';
+    }
+
+    /**
+     * Vérifie si le contenu est rejeté
+     */
+    public function estRejete(): bool
+    {
+        return $this->statut === 'rejete';
+    }
+
+    /**
+     * Vérifie si le contenu est un brouillon
+     */
+    public function estBrouillon(): bool
+    {
+        return $this->statut === 'brouillon';
     }
 }

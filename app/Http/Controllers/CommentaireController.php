@@ -32,7 +32,7 @@ class CommentaireController extends Controller
         $request->validate([
             'texte' => 'required|string',
             'note' => 'nullable|integer|min:1|max:5',
-            'id_utilisateur' => 'required|exists:users,id',
+            'id_utilisateur' => 'required|exists:users,id_utilisateur', // CORRIGÉ ICI
             'id_contenu' => 'required|exists:contenus,id_contenu',
         ]);
 
@@ -67,7 +67,7 @@ class CommentaireController extends Controller
         $request->validate([
             'texte' => 'required|string',
             'note' => 'nullable|integer|min:1|max:5',
-            'id_utilisateur' => 'required|exists:users,id',
+            'id_utilisateur' => 'required|exists:users,id_utilisateur', // CORRIGÉ ICI
             'id_contenu' => 'required|exists:contenus,id_contenu',
         ]);
 

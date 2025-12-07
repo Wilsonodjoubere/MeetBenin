@@ -6,7 +6,7 @@ use App\Models\Contenu;
 use App\Models\Region;
 use App\Models\Langue;
 use App\Models\TypeContenu;
-use App\Models\Utilisateur;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class ContenuController extends Controller
@@ -31,7 +31,7 @@ class ContenuController extends Controller
         $regions = Region::orderBy('nom_region')->get();
         $langues = Langue::orderBy('nom_langue')->get();
         $typesContenu = TypeContenu::orderBy('nom_type_contenu')->get();
-        $utilisateurs = Utilisateur::orderBy('nom')->orderBy('prenom')->get();
+        $utilisateurs = User::orderBy('nom')->orderBy('prenom')->get();
         $contenusParents = Contenu::whereNull('parent_id')->orderBy('titre')->get();
         
         return view('contenus.create', compact('regions', 'langues', 'typesContenu', 'utilisateurs', 'contenusParents'));
@@ -47,11 +47,11 @@ class ContenuController extends Controller
             'texte' => 'required|string',
             'statut' => 'required|in:brouillon,en_attente,approuve,rejete',
             'parent_id' => 'nullable|exists:contenus,id_contenu',
-            'id_region' => 'required|exists:region,id_region', // ← CORRIGÉ : region au singulier
-            'id_langue' => 'required|exists:langues,Id_langue',
+            'id_region' => 'required|exists:regions,id_region',
+            'id_langue' => 'required|exists:langues,id_langue', // id_langue en minuscules
             'id_type_contenu' => 'required|exists:type_contenus,id_type_contenu',
-            'id_auteur' => 'required|exists:utilisateurs,id_utilisateur',
-            'id_moderateur' => 'nullable|exists:utilisateurs,id_utilisateur',
+            'id_auteur' => 'required|exists:users,id_utilisateur',
+            'id_moderateur' => 'nullable|exists:users,id_utilisateur',
         ]);
 
         $data = $request->all();
@@ -94,7 +94,7 @@ class ContenuController extends Controller
         $regions = Region::orderBy('nom_region')->get();
         $langues = Langue::orderBy('nom_langue')->get();
         $typesContenu = TypeContenu::orderBy('nom_type_contenu')->get();
-        $utilisateurs = Utilisateur::orderBy('nom')->orderBy('prenom')->get();
+        $utilisateurs = User::orderBy('nom')->orderBy('prenom')->get();
         $contenusParents = Contenu::whereNull('parent_id')
                                 ->where('id_contenu', '!=', $id)
                                 ->orderBy('titre')
@@ -115,11 +115,11 @@ class ContenuController extends Controller
             'texte' => 'required|string',
             'statut' => 'required|in:brouillon,en_attente,approuve,rejete',
             'parent_id' => 'nullable|exists:contenus,id_contenu',
-            'id_region' => 'required|exists:region,id_region', // ← CORRIGÉ : region au singulier
-            'id_langue' => 'required|exists:langues,Id_langue',
+            'id_region' => 'required|exists:regions,id_region',
+            'id_langue' => 'required|exists:langues,id_langue', // id_langue en minuscules
             'id_type_contenu' => 'required|exists:type_contenus,id_type_contenu',
-            'id_auteur' => 'required|exists:utilisateurs,id_utilisateur',
-            'id_moderateur' => 'nullable|exists:utilisateurs,id_utilisateur',
+            'id_auteur' => 'required|exists:users,id_utilisateur',
+            'id_moderateur' => 'nullable|exists:users,id_utilisateur',
         ]);
 
         $data = $request->all();
@@ -158,7 +158,7 @@ class ContenuController extends Controller
         $contenu->update([
             'statut' => 'approuve',
             'date_validation' => now(),
-            'id_moderateur' => auth()->id() // Si vous avez l'authentification
+            'id_moderateur' => auth()->id()
         ]);
 
         return redirect()->back()
@@ -173,7 +173,7 @@ class ContenuController extends Controller
         $contenu = Contenu::findOrFail($id);
         $contenu->update([
             'statut' => 'rejete',
-            'id_moderateur' => auth()->id() // Si vous avez l'authentification
+            'id_moderateur' => auth()->id()
         ]);
 
         return redirect()->back()

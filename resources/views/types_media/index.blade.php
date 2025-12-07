@@ -19,7 +19,7 @@
             <h1 class="h4 mb-1 text-gray-800">Types de Média</h1>
             <p class="text-muted mb-0">Administrez les types de média disponibles dans le système</p>
         </div>
-        <a href="{{ route('types-media.create') }}" class="btn btn-primary btn-sm">
+        <a href="{{ route('types_media.create') }}" class="btn btn-primary btn-sm">
             <i class="bi bi-plus-circle me-1"></i>Nouveau type
         </a>
     </div>
@@ -134,7 +134,7 @@
                                 <i class="bi bi-inbox display-4 d-block mb-2"></i>
                                 Aucun type de média trouvé
                                 <br>
-                                <a href="{{ route('types-media.create') }}" class="btn btn-primary btn-sm mt-2">
+                                <a href="{{ route('types_media.create') }}" class="btn btn-primary btn-sm mt-2">
                                     <i class="bi bi-plus-circle me-1"></i>Ajouter le premier type
                                 </a>
                             </td>

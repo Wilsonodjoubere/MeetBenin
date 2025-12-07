@@ -1,27 +1,24 @@
 <?php
+// app/Http/Controllers/UtilisateurController.php
 
 namespace App\Http\Controllers;
 
-use App\Models\Utilisateur; // ← Utiliser le nouveau modèle
-use App\Models\Role;
+use App\Models\User;
 use App\Models\Langue;
+use App\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 
-class UtilisateurController extends Controller
+class UtilisateurController extends Controller  // IMPORTANT : Doit être UtilisateurController, pas UserController
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $utilisateurs = Utilisateur::with(['role', 'langue']) // ← Utilisateur au lieu de User
-                    ->orderBy('nom')
-                    ->orderBy('prenom')
-                    ->get();
-        
-        return view('utilisateurs.index', compact('utilisateurs')); // ← variable utilisateurs
+        $utilisateurs = User::with(['role', 'langue'])->get();
+        return view('utilisateurs.index', compact('utilisateurs'));
     }
 
     /**
@@ -29,10 +26,9 @@ class UtilisateurController extends Controller
      */
     public function create()
     {
-        $roles = Role::orderBy('nom_role')->get();
-        $langues = Langue::orderBy('nom_langue')->get();
-        
-        return view('utilisateurs.create', compact('roles', 'langues'));
+        $langues = Langue::all();
+        $roles = Role::all();
+        return view('utilisateurs.create', compact('langues', 'roles'));
     }
 
     /**
@@ -41,112 +37,146 @@ class UtilisateurController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'nom' => 'required|string|max:100',
-            'prenom' => 'required|string|max:100',
-            'email' => 'required|email|unique:utilisateurs,email',
-            'mot_de_passe' => 'required|string|min:8',
-            'sexe' => 'nullable|in:M,F',
-            'date_naissance' => 'nullable|date',
-            'statut' => 'required|in:actif,inactif,suspendu',
-            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'role_id' => 'required|exists:roles,id',
-            'langue_id' => 'required|exists:langues,Id_langue',
+            'nom' => ['required', 'string', 'max:255'],
+            'prenom' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'password' => ['required', 'string', 'min:8'],
+            'sexe' => ['required', 'string', 'in:M,F'],
+            'date_naissance' => ['nullable', 'date'],
+            'statut' => ['required', 'string', 'in:actif,inactif'],
+            'id_role' => ['required', 'integer', 'exists:roles,id_role'],
+            'id_langue' => ['nullable', 'integer', 'exists:langues,id_langue'],
+            'photo' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
         ]);
 
-        $data = $request->all();
-        $data['mot_de_passe'] = Hash::make($request->mot_de_passe);
-
-        // Gestion de l'upload de photo
+        // Gestion de l'upload de la photo
+        $photoName = null;
         if ($request->hasFile('photo')) {
-            $photoPath = $request->file('photo')->store('photos_utilisateurs', 'public');
-            $data['photo'] = $photoPath;
+            $photoPath = $request->file('photo')->store('photos', 'public');
+            $photoName = basename($photoPath);
         }
 
-        Utilisateur::create($data); // ← Utilisateur au lieu de User
+        User::create([
+            'nom' => $request->nom,
+            'prenom' => $request->prenom,
+            'email' => $request->email,
+            'mot_de_passe' => Hash::make($request->password),
+            'sexe' => $request->sexe,
+            'date_naissance' => $request->date_naissance,
+            'statut' => $request->statut,
+            'id_role' => $request->id_role,
+            'id_langue' => $request->id_langue,
+            'photo' => $photoName,
+        ]);
 
         return redirect()->route('utilisateurs.index')
-            ->with('success', 'Utilisateur créé avec succès');
+            ->with('success', 'Utilisateur créé avec succès.');
     }
 
     /**
      * Display the specified resource.
      */
-    public function show($id)
+    public function show(User $user)
     {
-        $utilisateur = Utilisateur::with(['role', 'langue'])->findOrFail($id); // ← Utilisateur
-        return view('utilisateurs.show', compact('utilisateur')); // ← variable utilisateur
+        $user->load(['role', 'langue']);
+        return view('utilisateurs.show', compact('user'));
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit($id)
+    public function edit(User $user)
     {
-        $utilisateur = Utilisateur::findOrFail($id); // ← Utilisateur
-        $roles = Role::orderBy('nom_role')->get();
-        $langues = Langue::orderBy('nom_langue')->get();
-        
-        return view('utilisateurs.edit', compact('utilisateur', 'roles', 'langues')); // ← utilisateur
+        $langues = Langue::all();
+        $roles = Role::all();
+        return view('utilisateurs.edit', compact('user', 'langues', 'roles'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, User $user)
     {
-        $utilisateur = Utilisateur::findOrFail($id); // ← Utilisateur
-
         $request->validate([
-            'nom' => 'required|string|max:100',
-            'prenom' => 'required|string|max:100',
-            'email' => 'required|email|unique:utilisateurs,email,' . $id . ',id_utilisateur',
-            'sexe' => 'nullable|in:M,F',
-            'date_naissance' => 'nullable|date',
-            'statut' => 'required|in:actif,inactif,suspendu',
-            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'role_id' => 'required|exists:roles,id',
-            'langue_id' => 'required|exists:langues,Id_langue',
+            'nom' => ['required', 'string', 'max:255'],
+            'prenom' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $user->id_utilisateur . ',id_utilisateur'],
+            'sexe' => ['required', 'string', 'in:M,F'],
+            'date_naissance' => ['nullable', 'date'],
+            'statut' => ['required', 'string', 'in:actif,inactif'],
+            'id_role' => ['required', 'integer', 'exists:roles,id_role'],
+            'id_langue' => ['nullable', 'integer', 'exists:langues,id_langue'],
+            'photo' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
         ]);
 
-        $data = $request->except('mot_de_passe');
+        $data = [
+            'nom' => $request->nom,
+            'prenom' => $request->prenom,
+            'email' => $request->email,
+            'sexe' => $request->sexe,
+            'date_naissance' => $request->date_naissance,
+            'statut' => $request->statut,
+            'id_role' => $request->id_role,
+            'id_langue' => $request->id_langue,
+        ];
 
         // Gestion du mot de passe (seulement si fourni)
-        if ($request->filled('mot_de_passe')) {
-            $data['mot_de_passe'] = Hash::make($request->mot_de_passe);
+        if ($request->filled('password')) {
+            $data['mot_de_passe'] = Hash::make($request->password);
         }
 
-        // Gestion de l'upload de photo
+        // Gestion de l'upload de la photo
         if ($request->hasFile('photo')) {
             // Supprimer l'ancienne photo si elle existe
-            if ($utilisateur->photo) {
-                Storage::disk('public')->delete($utilisateur->photo);
+            if ($user->photo) {
+                Storage::delete('public/photos/' . $user->photo);
             }
             
-            $photoPath = $request->file('photo')->store('photos_utilisateurs', 'public');
-            $data['photo'] = $photoPath;
+            $photoPath = $request->file('photo')->store('photos', 'public');
+            $data['photo'] = basename($photoPath);
         }
 
-        $utilisateur->update($data); // ← Utilisateur
+        $user->update($data);
 
         return redirect()->route('utilisateurs.index')
-            ->with('success', 'Utilisateur modifié avec succès');
+            ->with('success', 'Utilisateur modifié avec succès.');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy($id)
+    public function destroy(User $user)
     {
-        $utilisateur = Utilisateur::findOrFail($id); // ← Utilisateur
-
         // Supprimer la photo si elle existe
-        if ($utilisateur->photo) {
-            Storage::disk('public')->delete($utilisateur->photo);
+        if ($user->photo) {
+            Storage::delete('public/photos/' . $user->photo);
         }
 
-        $utilisateur->delete(); // ← Utilisateur
+        $user->delete();
 
         return redirect()->route('utilisateurs.index')
-            ->with('success', 'Utilisateur supprimé avec succès');
+            ->with('success', 'Utilisateur supprimé avec succès.');
+    }
+
+    /**
+     * Activer un utilisateur
+     */
+    public function activate(User $user)
+    {
+        $user->update(['statut' => 'actif']);
+
+        return redirect()->route('utilisateurs.index')
+            ->with('success', 'Utilisateur activé avec succès.');
+    }
+
+    /**
+     * Désactiver un utilisateur
+     */
+    public function deactivate(User $user)
+    {
+        $user->update(['statut' => 'inactif']);
+
+        return redirect()->route('utilisateurs.index')
+            ->with('success', 'Utilisateur désactivé avec succès.');
     }
 }

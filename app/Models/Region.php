@@ -7,7 +7,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Region extends Model
 {
-    protected $table = 'region'; // ← Table au singulier
+    // Supprimez ou commentez cette ligne, Laravel utilisera automatiquement 'regions'
+    // protected $table = 'region'; // ← À SUPPRIMER OU MODIFIER
+    
+    // OU si vous voulez être explicite :
+    protected $table = 'regions'; // ← 'regions' au pluriel
+    
     protected $primaryKey = 'id_region';
     
     protected $fillable = [

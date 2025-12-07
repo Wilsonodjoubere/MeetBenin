@@ -93,9 +93,9 @@
                                     <label for="id_langue" class="form-label">Langue <span class="text-danger">*</span></label>
                                     <select class="form-select @error('id_langue') is-invalid @enderror" 
                                             id="id_langue" name="id_langue" required>
-                                        <option value="">Sélectionnez une langue</option>
+                                        <option value="" disabled selected>Sélectionnez une langue</option>
                                         @foreach($langues as $langue)
-                                            <option value="{{ $langue->Id_langue }}" {{ old('id_langue') == $langue->Id_langue ? 'selected' : '' }}>
+                                            <option value="{{ $langue->id_langue }}" {{ old('id_langue') == $langue->id_langue ? 'selected' : '' }}>
                                                 {{ $langue->nom_langue }} ({{ $langue->code_langue }})
                                             </option>
                                         @endforeach

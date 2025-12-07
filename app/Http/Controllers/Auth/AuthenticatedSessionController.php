@@ -1,4 +1,5 @@
 <?php
+// app/Http/Controllers/Auth/AuthenticatedSessionController.php
 
 namespace App\Http\Controllers\Auth;
 
@@ -28,20 +29,8 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        // 🔥 MODIFICATION ICI : Redirection selon le rôle
-        $user = Auth::user();
-        
-        if ($user->role === 'admin') {
-            return redirect()->intended('/', absolute: false);
-        }
-        
-        // Pour les autres rôles (tu peux ajouter plus tard)
-        // if ($user->role === 'moderator') {
-        //     return redirect()->intended('/moderator', absolute: false);
-        // }
-        
-        // Par défaut, redirige vers la page d'accueil
-        return redirect()->intended('/', absolute: false);
+        // Rediriger vers la route 'home' qui gère la redirection par rôle
+        return redirect()->route('home');
     }
 
     /**

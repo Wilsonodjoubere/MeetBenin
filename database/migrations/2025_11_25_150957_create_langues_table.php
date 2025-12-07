@@ -6,20 +6,21 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
+        // Langue(id_langue, nom_langue, code_langue, description)
         Schema::create('langues', function (Blueprint $table) {
-            $table->id();
+            // C'est la ligne CRUCIALE pour le MLD et les FKs
+            $table->id('id_langue'); 
+
+            $table->string('nom_langue', 100);
+            $table->string('code_langue', 10)->unique();
+            $table->text('description')->nullable();
+
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('langues');

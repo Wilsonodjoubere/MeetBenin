@@ -63,6 +63,24 @@ return [
         'users' => [
             'driver' => 'eloquent',
             'model' => env('AUTH_MODEL', App\Models\User::class),
+            
+            // ============================================
+            // CORRECTIONS CRITIQUES POUR TA STRUCTURE
+            // ============================================
+            
+            // Spécifie la clé primaire personnalisée
+            'key' => 'id_utilisateur',
+            
+            // Spécifie la colonne de mot de passe personnalisée
+            'password_column' => 'mot_de_passe',
+            
+            // Spécifie la colonne remember token
+            'remember_token_column' => 'remember_token',
+            
+            // Spécifie la colonne email (déjà correcte)
+            'email_column' => 'email',
+            
+            // ============================================
         ],
 
         // 'users' => [
@@ -96,6 +114,12 @@ return [
             'table' => env('AUTH_PASSWORD_RESET_TOKEN_TABLE', 'password_reset_tokens'),
             'expire' => 60,
             'throttle' => 60,
+            
+            // Spécifie la colonne email pour la réinitialisation
+            'email_column' => 'email',
+            
+            // Optionnel : nom de la colonne de token
+            'token_column' => 'token',
         ],
     ],
 
