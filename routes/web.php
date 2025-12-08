@@ -28,6 +28,17 @@ Route::get('/', function () {
     // Non connecté - rediriger vers login
     return redirect()->route('login');
 });
+//Routes pour le front end
+Route::get('/', function () {
+    return view('front.home');
+});
+
+Route::get('/home', function () {
+    return view('front.home');
+});
+
+
+
 // Routes pour les contenus
 Route::resource('contenus', ContenuController::class);
 

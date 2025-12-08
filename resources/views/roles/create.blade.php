@@ -62,11 +62,4 @@
         color: #495057;
     }
 </style>
-@endsection# Vérifiez votre statut Git
-git status
-
-# Vérifiez vos commits
-git log --oneline
-
-# Vérifiez vos branches
-git branch
+@endsection
