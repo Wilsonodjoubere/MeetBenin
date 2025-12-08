@@ -1,0 +1,15 @@
+{
+  "services": [
+    {
+      "type": "web",
+      "name": "MeetBenin",
+      "env": "php",
+      "plan": "free",
+      "buildCommand": [
+        "composer install --optimize-autoloader --no-dev",
+        "php artisan key:generate --force",
+        "php artisan migrate --force"
+      ]
+    }
+  ]
+}
